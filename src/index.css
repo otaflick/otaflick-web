@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+
+@layer utilities {
+  .shadow-sidebar {
+    /* vertical right shadow */
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.35)
+  }
+  .clip-path-left {
+    clip-path: polygon(0 0, 100% 0, 70% 100%, 0% 100%);
+  }
+  
+  .clip-path-right {
+    clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.2s ease-out;
+}
+
+
+

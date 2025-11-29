@@ -1,0 +1,222 @@
+.show-card-section {
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .show-card-section.mobile {
+    height: 280px;
+  }
+  
+  .show-card-section.tablet {
+    height: 500px;
+  }
+  
+  .genre-label {
+    padding: 0 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: black;
+    font-size: clamp(14px, 4vw, 18px);
+  }
+  
+  .shows-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 10px;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .shows-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .shows-scroll-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .show-card-container {
+    border-radius: 20px;
+    padding: 0 10px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .show-card-container:hover {
+    transform: scale(1.05);
+  }
+  
+  .show-card-container.mobile {
+    margin-right: 10px;
+  }
+  
+  .show-card-container.tablet {
+    margin-right: 20px;
+  }
+  
+  .show-card-image {
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s ease;
+  }
+  
+  .show-card-image.coming-soon {
+    opacity: 0.6;
+  }
+  
+  .show-card-container.mobile .show-card-image {
+    width: 150px;
+  }
+  
+  .show-card-container.tablet .show-card-image {
+    width: 250px;
+  }
+  
+  .coming-soon-overlay {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  
+  .coming-soon-text {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 10px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .show-card-section.mobile {
+      height: 240px;
+    }
+    
+    .show-card-section.tablet {
+      height: 400px;
+    }
+    
+    .show-card-container.mobile .show-card-image {
+      width: 130px;
+    }
+    
+    .show-card-container.tablet .show-card-image {
+      width: 200px;
+    }
+    
+    .genre-label {
+      padding: 0 15px;
+      font-size: clamp(12px, 3.5vw, 16px);
+    }
+    
+    .shows-scroll-container {
+      padding: 0 8px;
+      gap: 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .show-card-section.mobile {
+      height: 200px;
+    }
+    
+    .show-card-section.tablet {
+      height: 350px;
+    }
+    
+    .show-card-container.mobile .show-card-image {
+      width: 110px;
+    }
+    
+    .show-card-container.tablet .show-card-image {
+      width: 160px;
+    }
+    
+    .genre-label {
+      padding: 0 10px;
+      font-size: clamp(11px, 3vw, 14px);
+    }
+    
+    .shows-scroll-container {
+      padding: 0 5px;
+      gap: 5px;
+    }
+    
+    .coming-soon-text {
+      font-size: 12px;
+      padding: 0 8px;
+    }
+    
+    .show-card-container {
+      border-radius: 15px;
+      padding: 0 8px;
+    }
+    
+    .show-card-image {
+      border-radius: 8px;
+    }
+    
+    .coming-soon-overlay {
+      left: 8px;
+      right: 8px;
+      border-radius: 8px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .show-card-section.mobile {
+      height: 320px;
+    }
+    
+    .show-card-section.tablet {
+      height: 550px;
+    }
+    
+    .show-card-container.mobile .show-card-image {
+      width: 180px;
+    }
+    
+    .show-card-container.tablet .show-card-image {
+      width: 280px;
+    }
+  }
+  
+  /* Touch device improvements */
+  @media (hover: none) {
+    .show-card-container:hover {
+      transform: none;
+    }
+    
+    .show-card-container:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .show-card-container {
+      transition: none;
+    }
+    
+    .show-card-image {
+      transition: none;
+    }
+    
+    .shows-scroll-container {
+      scroll-behavior: auto;
+    }
+  }

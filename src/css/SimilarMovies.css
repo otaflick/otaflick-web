@@ -1,0 +1,209 @@
+.similar-movies-container {
+    width: 100%;
+    height: auto;
+    margin: 1rem 0 3rem 0;
+}
+
+.movies-grid {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+}
+
+.movie-card {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f0f0f0;
+    width: auto;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.movie-poster-container {
+    position: relative;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 2/3;
+}
+
+.movie-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.movie-poster.coming-soon {
+    opacity: 0.6;
+}
+
+.coming-soon-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.coming-soon-text {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 0.75rem;
+}
+
+/* Responsive Grid Layout */
+/* Mobile First - 2 columns */
+.movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Small mobile devices */
+@media (max-width: 375px) {
+    .movies-grid {
+        gap: 0.75rem;
+    }
+    
+    .coming-soon-text {
+        font-size: 0.75rem;
+        padding: 0 0.5rem;
+    }
+}
+
+/* Medium mobile devices */
+@media (min-width: 376px) and (max-width: 480px) {
+    .movies-grid {
+        gap: 0.875rem;
+    }
+}
+
+/* Tablets and larger mobile devices */
+@media (min-width: 768px) {
+    .movies-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+    
+    .coming-soon-text {
+        font-size: 1rem;
+    }
+}
+
+/* Small laptops and large tablets */
+@media (min-width: 1024px) {
+    .movies-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+    .movies-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.75rem;
+    }
+}
+
+/* Large desktop */
+@media (min-width: 1440px) {
+    .movies-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+}
+
+/* Extra large screens */
+@media (min-width: 1920px) {
+    .movies-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 2.25rem;
+    }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 2560px) {
+    .movies-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 2.5rem;
+    }
+}
+
+/* Height-based adjustments for very tall screens */
+@media (min-height: 1000px) and (min-width: 1024px) {
+    .movie-poster-container {
+        aspect-ratio: 3/4;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .movie-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .movie-card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .movie-card {
+        transition: none;
+    }
+    
+    .movie-card:hover {
+        transform: none;
+    }
+    
+    .movie-poster {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .coming-soon-overlay {
+        background: rgba(0, 0, 0, 0.9);
+    }
+    
+    .coming-soon-text {
+        font-weight: 900;
+    }
+}
+
+/* Print styles */
+@media print {
+    .similar-movies-container {
+        break-inside: avoid;
+    }
+    
+    .movie-card {
+        break-inside: avoid;
+    }
+    
+    .coming-soon-overlay {
+        background: #ccc;
+    }
+    
+    .coming-soon-text {
+        color: #000;
+    }
+}

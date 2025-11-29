@@ -1,0 +1,201 @@
+.container {
+    margin-bottom: 20px;
+  }
+  
+  .episode-container {
+    margin-bottom: 15px;
+    padding-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+  }
+  
+  .row-container {
+    display: flex;
+    margin-bottom: 5px;
+    gap: 15px;
+  }
+  
+  .episode-poster-button {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .episode-poster-button:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  
+  .episode-poster-button.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .poster {
+    border-radius: 5px;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+  
+  .mobile-poster {
+    width: 150px;
+    height: 80px;
+  }
+  
+  .tablet-poster {
+    width: 15vw;
+    height: 8vh;
+  }
+  
+  .play-button-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+  }
+  
+  .play-button {
+    z-index: 1;
+  }
+  
+  .coming-soon-text {
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  
+  .episode-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .episode-number {
+    color: black;
+    font-weight: bold;
+  }
+  
+  .episode-name {
+    color: black;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  
+  .episode-overview {
+    color: black;
+    margin-top: 8px;
+  }
+  
+  /* Text sizes for different devices */
+  .mobile-text {
+    font-size: 14px;
+  }
+  
+  .mobile-text.episode-number {
+    font-size: 16px;
+  }
+  
+  .mobile-text.episode-overview {
+    font-size: 12px;
+  }
+  
+  .tablet-text {
+    font-size: 1.2vw;
+  }
+  
+  .tablet-text.episode-number {
+    font-size: 1.4vw;
+  }
+  
+  .tablet-text.episode-overview {
+    font-size: 1.2vw;
+  }
+  
+  .download-episode-button {
+    background-color: #2D2D2D;
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+    margin-top: 8px;
+    gap: 6px;
+  }
+  
+  .download-episode-button:hover:not(:disabled) {
+    background-color: #404040;
+  }
+  
+  .download-episode-button.download-button-disabled {
+    background-color: #666;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .download-episode-text {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .coming-soon-download-text {
+    color: #999;
+  }
+  
+  .no-episodes-text {
+    color: black;
+    text-align: center;
+    font-size: 16px;
+    margin: 20px 0;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .tablet-poster {
+      width: 120px;
+      height: 70px;
+    }
+    
+    .tablet-text {
+      font-size: 14px;
+    }
+    
+    .tablet-text.episode-number {
+      font-size: 16px;
+    }
+    
+    .tablet-text.episode-overview {
+      font-size: 12px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .tablet-text {
+      font-size: 16px;
+    }
+    
+    .tablet-text.episode-number {
+      font-size: 18px;
+    }
+    
+    .tablet-text.episode-overview {
+      font-size: 14px;
+    }
+  }
