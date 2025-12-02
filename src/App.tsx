@@ -11,6 +11,7 @@ import AnimeScreen from "./pages/AnimeScreen"
 import AnimeDetails from "./pages/AnimeDetails"
 import AnimeSearchScreen from "./pages/AnimeSearchScreen"
 
+
 function App() {
   return (
     <Routes>

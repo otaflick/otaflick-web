@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import majeLogo from "../assets/images/logoAndName.jpeg";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import AdScript from "../components/ads/AdScript";
+import SocialBarScript from "../components/ads/SocialBarScript";
+import NativeBanner from "../components/ads/NativeBanner";
+import Banner468x60 from "../components/ads/Banner468x60";
 
 const Topbar = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
   const navigate = useNavigate();
@@ -96,6 +100,11 @@ const TopbarLayout = () => {
 
   return (
     <>
+    <Banner468x60/>
+    <AdScript/>
+    <SocialBarScript/>
+    <NativeBanner/>
+    
       <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
       {/* Mobile Slide-out Menu */}
