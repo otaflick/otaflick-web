@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 import HomeScreen from "./pages/HomeScreen"
 import TopbarLayout from "./layout/Topbar"
 import Page404 from "./pages/pageNotFound"
@@ -17,6 +17,7 @@ function App() {
     <Routes>
         {/* Wrap routes inside TopbarLayout */}
         <Route element={<TopbarLayout />}>
+        <Route path="/" element={<Navigate to="/movies" replace />} />
           <Route path="/movies" element={<HomeScreen />} />
           <Route path="/movie-details" element={<MovieDetails />} />
           <Route path="/search" element={<MoviesSearchScreen />} />
