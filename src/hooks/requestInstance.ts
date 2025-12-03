@@ -1,4 +1,3 @@
-import React from 'react';
 
 const BASE_IP = import.meta.env.VITE_BASE_URL;
 
@@ -1689,7 +1688,6 @@ export const verifyResetCodeAPI = async (email: string, code: string): Promise<V
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       // If it's not JSON, get the text to see what's wrong
-      const textResponse = await response.text();
       // console.error(' Non-JSON response from server:', textResponse.substring(0, 200));
       throw new Error('Server error. Please try again.');
     }

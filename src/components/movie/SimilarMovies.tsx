@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/SimilarMovies.css';
 
@@ -22,7 +21,7 @@ interface SimilarMoviesProps {
   isTablet: boolean;
 }
 
-const SimilarMovies = ({ similarMoviesList, isTablet }: SimilarMoviesProps) => {
+const SimilarMovies = ({ similarMoviesList }: SimilarMoviesProps) => {
     const navigate = useNavigate();
 
     // Check if movie has download link
