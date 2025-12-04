@@ -4,10 +4,13 @@ import majeLogo from "../assets/images/logoAndName.jpeg";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import AdScript from "../components/ads/AdScript";
 import SocialBarScript from "../components/ads/SocialBarScript";
-import NativeBanner from "../components/ads/NativeBanner";
 import Banner468x60 from "../components/ads/Banner468x60";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from "@vercel/analytics/react"
+import Banner728x90 from "../components/ads/Banner728x90";
+import Banner160x300 from "../components/ads/Banner160x300";
+
+
 
 const Topbar = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
   const navigate = useNavigate();
@@ -102,9 +105,10 @@ const TopbarLayout = () => {
       <SpeedInsights />
       <Analytics/>
       <Banner468x60 />
+      <Banner728x90/>
+      <Banner160x300/>
       <AdScript />
       <SocialBarScript />
-      <NativeBanner />
 
       <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
