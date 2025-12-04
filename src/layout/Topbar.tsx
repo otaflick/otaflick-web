@@ -6,6 +6,8 @@ import AdScript from "../components/ads/AdScript";
 import SocialBarScript from "../components/ads/SocialBarScript";
 import NativeBanner from "../components/ads/NativeBanner";
 import Banner468x60 from "../components/ads/Banner468x60";
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from "@vercel/analytics/react"
 
 const Topbar = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
   const navigate = useNavigate();
@@ -24,44 +26,41 @@ const Topbar = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between px-4 md:px-6 lg:px-8">
         {/* Logo - Fixed sizing */}
         <div className="flex-shrink-0">
-          <img 
-            src={majeLogo} 
-            onClick={() => navigate("/")} 
-            alt="Maje" 
-            className="h-20 w-auto object-contain cursor-pointer transition-transform hover:scale-105" 
+          <img
+            src={majeLogo}
+            onClick={() => navigate("/")}
+            alt="Maje"
+            className="h-20 w-auto object-contain cursor-pointer transition-transform hover:scale-105"
           />
         </div>
 
         {/* Desktop nav - Centered and properly spaced */}
         <nav className="hidden md:flex items-center justify-center flex-1 max-w-2xl mx-8">
           <div className="flex items-center gap-8 lg:gap-12 text-gray-700 font-medium">
-            <button 
-              onClick={() => navigateToSection("/movies")} 
-              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${
-                isActive("/movies") 
-                  ? "text-blue-600 border-blue-600" 
+            <button
+              onClick={() => navigateToSection("/movies")}
+              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${isActive("/movies")
+                  ? "text-blue-600 border-blue-600"
                   : "border-transparent hover:text-blue-600 hover:border-blue-600"
-              }`}
+                }`}
             >
               Movies
             </button>
-            <button 
-              onClick={() => navigateToSection("/shows")} 
-              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${
-                isActive("/shows") 
-                  ? "text-blue-600 border-blue-600" 
+            <button
+              onClick={() => navigateToSection("/shows")}
+              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${isActive("/shows")
+                  ? "text-blue-600 border-blue-600"
                   : "border-transparent hover:text-blue-600 hover:border-blue-600"
-              }`}
+                }`}
             >
               Shows
             </button>
-            <button 
-              onClick={() => navigateToSection("/anime")} 
-              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${
-                isActive("/anime") 
-                  ? "text-blue-600 border-blue-600" 
+            <button
+              onClick={() => navigateToSection("/anime")}
+              className={`transition-colors duration-200 font-semibold text-lg py-2 px-1 border-b-2 ${isActive("/anime")
+                  ? "text-blue-600 border-blue-600"
                   : "border-transparent hover:text-blue-600 hover:border-blue-600"
-              }`}
+                }`}
             >
               Anime
             </button>
@@ -100,11 +99,13 @@ const TopbarLayout = () => {
 
   return (
     <>
-    <Banner468x60/>
-    <AdScript/>
-    <SocialBarScript/>
-    <NativeBanner/>
-    
+      <SpeedInsights />
+      <Analytics/>
+      <Banner468x60 />
+      <AdScript />
+      <SocialBarScript />
+      <NativeBanner />
+
       <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
       {/* Mobile Slide-out Menu */}
@@ -115,17 +116,17 @@ const TopbarLayout = () => {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setMenuOpen(false)}
           />
-          
+
           {/* Menu Panel */}
           <aside
             className="absolute top-0 right-0 w-80 h-full bg-white shadow-2xl rounded-l-xl p-6 flex flex-col"
           >
             {/* Header with close button */}
             <div className="flex items-center justify-between mb-8">
-              <img 
-                src={majeLogo} 
-                alt="Maje" 
-                className="h-10 w-auto object-contain" 
+              <img
+                src={majeLogo}
+                alt="Maje"
+                className="h-10 w-auto object-contain"
               />
               <button
                 onClick={() => setMenuOpen(false)}
@@ -138,34 +139,31 @@ const TopbarLayout = () => {
 
             {/* Navigation Links */}
             <nav className="flex flex-col gap-4 flex-1">
-              
-              <button 
-                onClick={() => navigateToSection("/movies")} 
-                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${
-                  isActive("/movies") 
-                    ? "bg-blue-600 text-white" 
+
+              <button
+                onClick={() => navigateToSection("/movies")}
+                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${isActive("/movies")
+                    ? "bg-blue-600 text-white"
                     : "hover:bg-blue-50 text-gray-800"
-                }`}
+                  }`}
               >
                 <span className="font-semibold text-lg">Movies</span>
               </button>
-              <button 
-                onClick={() => navigateToSection("/shows")} 
-                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${
-                  isActive("/shows") 
-                    ? "bg-blue-600 text-white" 
+              <button
+                onClick={() => navigateToSection("/shows")}
+                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${isActive("/shows")
+                    ? "bg-blue-600 text-white"
                     : "hover:bg-blue-50 text-gray-800"
-                }`}
+                  }`}
               >
                 <span className="font-semibold text-lg">Shows</span>
               </button>
-              <button 
-                onClick={() => navigateToSection("/anime")} 
-                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${
-                  isActive("/anime") 
-                    ? "bg-blue-600 text-white" 
+              <button
+                onClick={() => navigateToSection("/anime")}
+                className={`w-full text-left py-4 px-4 rounded-lg transition-colors border-b border-gray-100 ${isActive("/anime")
+                    ? "bg-blue-600 text-white"
                     : "hover:bg-blue-50 text-gray-800"
-                }`}
+                  }`}
               >
                 <span className="font-semibold text-lg">Anime</span>
               </button>
