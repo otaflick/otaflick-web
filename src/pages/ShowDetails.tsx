@@ -1,15 +1,15 @@
-// src/pages/ShowDetails.tsx
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import VideoPlayer from '../components/player/VideoPlayer';
+import EpisodeList from '../components/shows/EpisodeList'; // Keep this import
 import '../css/ShowDetails.css';
-import EpisodeList from '../components/shows/EpisodeList';
+import { X } from 'lucide-react';
 
 // Define types
 export interface Episode {
   _id: string;
   name: string;
   downloadLink: string;
-  episode?: string;
   poster?: string;
   episode_number?: number;
   runtime?: number;
@@ -41,19 +41,58 @@ export default function ShowDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get show data from router state - it's already an object
   const show = location.state?.show as Show | null;
 
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState<number>(0);
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [downloadingEpisodes, setDownloadingEpisodes] = useState<Set<string>>(new Set());
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
 
-  // Use a ref to track if we've already fetched
   const hasFetched = useRef(false);
 
   const onBack = () => {
     navigate(-1);
+  };
+
+  // Update this function to work with EpisodeList
+  const handlePlayEpisode = (episode: Episode) => {
+    if (!episode.downloadLink || episode.downloadLink === '') {
+      alert("Video streaming not available for this episode!");
+      return;
+    }
+    setSelectedEpisode(episode);
+    setShowVideoPlayer(true);
+  };
+
+  // Create a wrapper function for EpisodeList's onPlayEpisode
+  const handleEpisodeListPlay = (episodeID: string, episodeLink: string, episodeName: string) => {
+    // Find the episode from the episodes list
+    const episodes = selectedSeason?.episodes || [];
+    const episode = episodes.find(ep => ep._id === episodeID);
+    
+    if (episode) {
+      handlePlayEpisode(episode);
+    } else {
+      // Fallback: create a temporary episode object
+      handlePlayEpisode({
+        _id: episodeID,
+        name: episodeName,
+        downloadLink: episodeLink
+      });
+    }
+  };
+
+  const handleCloseVideoPlayer = () => {
+    setShowVideoPlayer(false);
+    setIsFullscreen(false);
+    setSelectedEpisode(null);
+  };
+
+  const handleFullscreenToggle = (fullscreen: boolean) => {
+    setIsFullscreen(fullscreen);
   };
 
   useEffect(() => {
@@ -65,43 +104,47 @@ export default function ShowDetails() {
     const initializeData = async () => {
       hasFetched.current = true;
       setIsLoading(true);
-      // Simulate loading
       setTimeout(() => setIsLoading(false), 1000);
     };
 
     initializeData();
   }, [show]);
 
-  // Real download function for browser
   const handleDownloadEpisode = async (episode: Episode) => {
     if (!episode.downloadLink || episode.downloadLink === '') {
       alert('This episode is not available for download yet');
       return;
     }
-
-    // Add episode to downloading set
+  
     setDownloadingEpisodes(prev => new Set(prev).add(episode._id));
-
+  
     try {
-      // For web downloads, we can create a temporary anchor element
-      if (episode.downloadLink.startsWith('http')) {
-        const link = document.createElement('a');
-        link.href = episode.downloadLink;
-        link.download = `${show?.name} - ${episode.name}.mp4` || 'episode.mp4';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        alert(`Download started: ${episode.name}`);
-      } else {
-        // If it's not a direct HTTP link, show a message
-        alert(`Would download: ${episode.name}\nLink: ${episode.downloadLink}`);
-      }
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = episode.downloadLink;
+      
+      link.download = `${show?.name || 'Episode'} - ${episode.name}.mp4`;
+      
+      // Set target to _blank to open in new tab (better for large files)
+      link.target = '_blank';
+      
+      // Append to body
+      document.body.appendChild(link);
+      
+      // Trigger click
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      
+      // Optional: You can show a success message
+      console.log(`Download initiated: ${episode.name}`);
+      
     } catch (error) {
       console.error('Download error:', error);
       alert('Download failed. Please try again.');
     } finally {
-      // Remove episode from downloading set after a delay
+      // Reset downloading state after a delay
       setTimeout(() => {
         setDownloadingEpisodes(prev => {
           const newSet = new Set(prev);
@@ -112,10 +155,8 @@ export default function ShowDetails() {
     }
   };
 
-  // Check if an episode is currently downloading
   const isDownloading = (id: string) => downloadingEpisodes.has(id);
 
-  // Loading Screen Component
   const LoadingScreen = () => (
     <div className="loading-container">
       <div className="loading-spinner"></div>
@@ -123,7 +164,6 @@ export default function ShowDetails() {
     </div>
   );
 
-  // Add a check for missing show data
   if (!show) {
     return (
       <div className="container">
@@ -138,7 +178,6 @@ export default function ShowDetails() {
     );
   }
 
-  // Show loading screen while data is being processed
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -152,18 +191,41 @@ export default function ShowDetails() {
     setModalVisible(false);
   };
 
-  // Safe access to seasons
   const seasons = show?.seasons || [];
   const selectedSeason = seasons[selectedSeasonIndex];
   const episodes = selectedSeason?.episodes || [];
 
   return (
     <div className="show-details-container">
+      {/* Video Player Modal */}
+      {showVideoPlayer && selectedEpisode && (
+        <div className={`video-player-overlay ${isFullscreen ? 'fullscreen' : ''}`}>
+          <div className="video-player-header">
+            <button onClick={handleCloseVideoPlayer} className="close-video-button">
+              <X size={24} />
+            </button>
+            {!isFullscreen && show && (
+              <h3 className="video-title">
+                {show.name} - {selectedEpisode.name}
+              </h3>
+            )}
+          </div>
+          <div className="video-player-container">
+            <VideoPlayer
+              videoUri={selectedEpisode.downloadLink}
+              contentType="show"
+              onFullscreenToggle={handleFullscreenToggle}
+              autoPlay={true}
+              muted={false}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="show-details-content">
         {seasons.length > 0 && (
           <div className={`modal-overlay ${isModalVisible ? 'visible' : ''}`}>
             <div className="modal-container">
-              {/* Modal Header */}
               <div className="modal-header">
                 <div className="modal-title">Select Season</div>
                 <button
@@ -174,7 +236,6 @@ export default function ShowDetails() {
                 </button>
               </div>
 
-              {/* Seasons List */}
               <div className="modal-list-content">
                 {seasons.map((season: Season, index: number) => (
                   <div
@@ -206,18 +267,15 @@ export default function ShowDetails() {
           ←
         </button>
 
-        {/* Show Backdrop Image */}
         <img
           src={show.backdropPath}
           alt={show.name}
           className="backdrop-image"
           onError={(e) => {
-            // Fallback if backdrop image fails to load
             (e.target as HTMLImageElement).src = '/placeholder-backdrop.jpg';
           }}
         />
 
-        {/* Show Details */}
         <div className="show-details-container-inner">
           <div className="show-title">{show.name}</div>
           <div className="sub-details-container">
@@ -232,7 +290,6 @@ export default function ShowDetails() {
           </div>
         </div>
 
-        {/* Overview and Genres */}
         <div className="details-container">
           <div className="overview">
             {show.overview}
@@ -244,7 +301,6 @@ export default function ShowDetails() {
           )}
         </div>
 
-        {/* Season Selector */}
         {seasons.length > 0 && (
           <button className="season-button-container" onClick={openSeasonSelector}>
             <div className="season-button">{`Season ${selectedSeasonIndex + 1}`}</div>
@@ -252,12 +308,13 @@ export default function ShowDetails() {
           </button>
         )}
 
-        {/* Episode List - Using the imported EpisodeList component */}
+        {/* Use EpisodeList component */}
         {episodes.length > 0 && (
-          <EpisodeList 
-            episodesList={episodes} 
+          <EpisodeList
+            episodesList={episodes}
             onDownloadEpisode={handleDownloadEpisode}
             isDownloading={isDownloading}
+            onPlayEpisode={handleEpisodeListPlay} // Pass the play handler
           />
         )}
       </div>

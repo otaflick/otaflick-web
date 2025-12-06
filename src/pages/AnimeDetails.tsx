@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Check, X } from 'lucide-react';
+import { ArrowLeft, Check, X, Play } from 'lucide-react'; // ADD Play
 import EpisodeList from '../components/anime/EpisodeList';
+import VideoPlayer from '../components/player/VideoPlayer'; // ADD THIS
 import '../css/AnimeDetails.css';
 
 // Define types
 export interface Episode {
   _id: string;
   name: string;
-  downloadLink: string;
+  downloadLink: string; // This will be used for video playback too
   episode?: string;
   poster?: string;
   episode_number?: number;
@@ -51,6 +52,9 @@ export default function AnimeDetails() {
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [downloadingEpisodes, setDownloadingEpisodes] = useState<Set<string>>(new Set());
+  const [animeVideoPlayer, setanimeVideoPlayer] = useState(false); // ADD THIS
+  const [isFullscreen, setIsFullscreen] = useState(false); // ADD THIS
+  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null); // ADD THIS
 
   // Use a ref to track if we've already fetched
   const hasFetched = React.useRef(false);
@@ -77,10 +81,30 @@ export default function AnimeDetails() {
     initializeData();
   }, [animeData]);
 
+  // ADD THESE FUNCTIONS
+  const handlePlayEpisode = (episode: Episode) => {
+    if (!episode.downloadLink || episode.downloadLink === '') {
+      alert("Video streaming not available for this episode!");
+      return;
+    }
+    setSelectedEpisode(episode);
+    setanimeVideoPlayer(true);
+  };
+
+  const handleCloseVideoPlayer = () => {
+    setanimeVideoPlayer(false);
+    setIsFullscreen(false);
+    setSelectedEpisode(null);
+  };
+
+  const handleFullscreenToggle = (fullscreen: boolean) => {
+    setIsFullscreen(fullscreen);
+  };
+
   // Check if anime has any available episodes
   const hasAvailableEpisodes = (): boolean => {
     if (!animeData?.seasons || animeData.seasons.length === 0) return false;
-    
+
     for (const season of animeData.seasons) {
       for (const episode of season.episodes) {
         if (episode.downloadLink && episode.downloadLink !== '') {
@@ -97,55 +121,73 @@ export default function AnimeDetails() {
   };
 
   // Web download function
-  const startDownload = async (downloadData: {
-    id: string;
-    title: string;
-    downloadLink: string;
-    contentType: string;
-    itemId: string;
-    episodeId: string;
-    seasonNumber: number;
-    episodeNumber: string;
-    posterPath?: string;
-    backdropPath?: string;
-    genres: string[];
-    releaseDate: string;
-    releaseYear: string;
-    overview: string;
-  }) => {
+  const handleDownloadEpisode = async (episode: Episode) => {
+    if (!episode.downloadLink || episode.downloadLink === '') {
+      alert('This episode is not available for download yet');
+      return;
+    }
+  
+    setDownloadingEpisodes(prev => new Set(prev).add(episode._id));
+  
     try {
-      // Add to downloading set
-      setDownloadingEpisodes(prev => new Set(prev).add(downloadData.id));
-
-      // Create a temporary anchor element for download
-      const link = document.createElement('a');
-      link.href = downloadData.downloadLink;
-      link.download = `${downloadData.title}.mp4`;
-      link.target = '_blank';
+      // 1. Create an iframe to load the video
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = episode.downloadLink;
       
-      // Trigger download
+      // 2. Create a hidden anchor element
+      const link = document.createElement('a');
+      link.href = episode.downloadLink;
+      link.download = `${anime?.name || 'Episode'} - ${episode.name}.mp4`;
+      link.style.display = 'none';
+      
+      // 3. Add both to document
+      document.body.appendChild(iframe);
       document.body.appendChild(link);
+      
+      // 4. Try to trigger download
       link.click();
-      document.body.removeChild(link);
-
-      // Simulate download completion after a delay
+      
+      // 5. Also try to download via iframe after it loads
+      iframe.onload = () => {
+        try {
+          // Try to trigger download in iframe context
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (iframeDoc) {
+            const iframeLink = iframeDoc.createElement('a');
+            iframeLink.href = episode.downloadLink;
+            iframeLink.download = `${anime?.name || 'Episode'} - ${episode.name}.mp4`;
+            iframeDoc.body.appendChild(iframeLink);
+            iframeLink.click();
+          }
+        } catch (e) {
+          console.log('Iframe download attempt failed:', e);
+        }
+      };
+      
+      // 6. Clean up after 5 seconds
       setTimeout(() => {
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        if (document.body.contains(link)) document.body.removeChild(link);
+        
         setDownloadingEpisodes(prev => {
           const newSet = new Set(prev);
-          newSet.delete(downloadData.id);
+          newSet.delete(episode._id);
           return newSet;
         });
-        alert(`Download started: ${downloadData.title}`);
-      }, 2000);
-
+      }, 5000);
+      
     } catch (error) {
-      console.error('Download error:', error);
+      console.error('Download failed:', error);
+      
+      // Final fallback
       setDownloadingEpisodes(prev => {
         const newSet = new Set(prev);
-        newSet.delete(downloadData.id);
+        newSet.delete(episode._id);
         return newSet;
       });
-      alert('Download failed');
+      
+      alert(`Right-click this link and select "Save link as":\n${episode.downloadLink}`);
     }
   };
 
@@ -160,7 +202,7 @@ export default function AnimeDetails() {
   // Add a check for missing anime data
   if (!animeData) {
     return (
-      <div className="show-details-container">
+      <div className="anime-details-container">
         <button onClick={() => navigate(-1)} className="back-button-anime">
           <ArrowLeft size={24} />
         </button>
@@ -172,7 +214,7 @@ export default function AnimeDetails() {
     );
   }
 
-  // Show loading screen while data is being processed
+  // anime loading screen while data is being processed
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -190,39 +232,6 @@ export default function AnimeDetails() {
     setModalVisible(false);
   };
 
-  
-
-  const handleDownloadEpisode = async (episode: Episode) => {
-    try {
-      if (!episode.downloadLink || episode.downloadLink === '') {
-        alert('This episode is not available for download yet');
-        return;
-      }
-
-      await startDownload({
-        id: episode._id,
-        title: `${animeData.name} - ${episode.name}`,
-        downloadLink: episode.downloadLink,
-        contentType: 'anime',
-        itemId: animeData._id,
-        episodeId: episode._id,
-        seasonNumber: selectedSeasonIndex + 1,
-        episodeNumber: episode.episode_number?.toString() || '1',
-        posterPath: episode.poster || animeData.posterPath,
-        backdropPath: animeData.backdropPath,
-        genres: animeData.genres,
-        releaseDate: animeData.releaseDate,
-        releaseYear: new Date(animeData.releaseDate).getFullYear().toString(),
-        overview: episode.overview || animeData.overview
-      });
-    } catch (error) {
-      console.error('Download error:', error);
-      alert('Download failed');
-    }
-  };
-
-  
-
   // Safe access to seasons
   const seasons = animeData?.seasons || [];
   const selectedSeason = seasons[selectedSeasonIndex];
@@ -231,8 +240,33 @@ export default function AnimeDetails() {
   const animeHasEpisodes = hasAvailableEpisodes();
 
   return (
-    <div className="show-details-container">
-      <div className="show-details-content">
+    <div className="anime-details-container">
+      {/* Video Player Modal */}
+      {animeVideoPlayer && selectedEpisode && (
+        <div className={`video-player-overlay ${isFullscreen ? 'fullscreen' : ''}`}>
+          <div className="video-player-header">
+            <button onClick={handleCloseVideoPlayer} className="close-video-button">
+              <X size={24} />
+            </button>
+            {!isFullscreen && animeData && (
+              <h3 className="video-title">
+                {animeData.name} - {selectedEpisode.name}
+              </h3>
+            )}
+          </div>
+          <div className="video-player-container">
+            <VideoPlayer
+              videoUri={selectedEpisode.downloadLink} // Use downloadLink as videoUri
+              contentType="anime"
+              onFullscreenToggle={handleFullscreenToggle}
+              autoPlay={true}
+              muted={false}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="anime-details-content">
         {/* Season Selection Modal */}
         {seasons.length > 0 && isModalVisible && (
           <div className={`modal-overlay ${isModalVisible ? 'visible' : ''}`} onClick={() => setModalVisible(false)}>
@@ -284,8 +318,8 @@ export default function AnimeDetails() {
         />
 
         {/* Anime Details */}
-        <div className="show-details-container-inner">
-          <div className="show-title">{animeData.name}</div>
+        <div className="anime-details-container-inner">
+          <div className="anime-title">{animeData.name}</div>
           <div className="sub-details-container">
             <div className="sub-details">
               {new Date(animeData.releaseDate).getFullYear()} | HD | ⭐ {animeData.ratings}
@@ -300,16 +334,19 @@ export default function AnimeDetails() {
 
         {/* Action Buttons */}
         <div className="button-container">
-          <button 
-            className={`play-button ${!animeHasEpisodes ? 'coming-soon-button' : ''}`}
-            disabled={!animeHasEpisodes}
-          >
-            <span className="play-button-text">
-              {animeHasEpisodes ? 'Availble' : 'Coming Soon'}
-            </span>
-          </button>
-          
-          
+          {animeHasEpisodes && (
+            <button
+              className="play-button"
+              onClick={() => {
+                if (episodes.length > 0 && episodes[0].downloadLink) {
+                  handlePlayEpisode(episodes[0]);
+                }
+              }}
+            >
+              <Play size={20} />
+              <span className="play-button-text">Play Episode 1</span>
+            </button>
+          )}
         </div>
 
         {/* Overview and Genres */}
@@ -332,14 +369,42 @@ export default function AnimeDetails() {
           </button>
         )}
 
-        {/* Episode List */}
+        {/* Episode List - Update to include play button */}
         {episodes.length > 0 && (
-          <EpisodeList 
-            episodesList={episodes} 
-            onDownloadEpisode={handleDownloadEpisode}
-            isDownloading={isDownloading}
-            isTablet={false} 
-          />
+          <div className="episode-list">
+            {episodes.map((episode: Episode, index: number) => (
+              <div key={episode._id} className="episode-item">
+                <div className="episode-info">
+                  <span className="episode-number">Ep {index + 1}</span>
+                  <div className="episode-details">
+                    <h4 className="episode-title">{episode.name}</h4>
+                    {episode.overview && (
+                      <p className="episode-description">{episode.overview}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="episode-actions">
+                  {episode.downloadLink && episode.downloadLink !== '' && (
+                    <button
+                      className="play-episode-btn"
+                      onClick={() => handlePlayEpisode(episode)}
+                      title="Play Episode"
+                    >
+                      <Play size={16} />
+                      <span>Play</span>
+                    </button>
+                  )}
+                  <button
+                    className={`download-btn ${isDownloading(episode._id) ? 'downloading' : ''}`}
+                    onClick={() => handleDownloadEpisode(episode)}
+                    disabled={!episode.downloadLink || episode.downloadLink === ''}
+                  >
+                    {isDownloading(episode._id) ? 'Downloading...' : 'Download'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

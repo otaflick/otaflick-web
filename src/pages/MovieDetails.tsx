@@ -1,17 +1,17 @@
-import  { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Download,  Tv, Speaker, Subtitles, Star } from 'lucide-react';
+import { ArrowLeft, Download, Play, Tv, Speaker, Subtitles, Star, X } from 'lucide-react';
 import SimilarMovies from '../components/movie/SimilarMovies';
 import { similarMoviesAPI } from '../hooks/requestInstance';
 import '../css/MovieDetails.css';
-
+import VideoPlayer from '../components/player/VideoPlayer';
 
 interface Movie {
     _id: string;
     title: string;
     posterPath: string;
     backdropPath: string;
-    downloadLink: string;
+    downloadLink: string; // This will be used for video playback too
     runtime: number;
     genres: string[];
     releaseDate: string;
@@ -29,10 +29,11 @@ export default function MovieDetails() {
 
     const [similarMoviesList, setSimilarMoviesList] = useState<Movie[]>([]);
     const [isTablet, setIsTablet] = useState(false);
-    const [isFullscreen] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [downloadProgress] = useState<number>(0);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
+    const [showVideoPlayer, setShowVideoPlayer] = useState(false);
 
     const hasFetched = useRef(false);
 
@@ -72,8 +73,8 @@ export default function MovieDetails() {
         initializeData();
     }, [movie]);
 
-    // Check if movie has download link
-    const hasDownloadLink = (): boolean => {
+    // Check if movie has download link (which is also video uri)
+    const hasVideoUri = (): boolean => {
         return !!(movie?.downloadLink && movie.downloadLink !== '');
     };
 
@@ -99,12 +100,29 @@ export default function MovieDetails() {
         return `${hours}h ${remainingMinutes}m`;
     }
 
-    // Download file function for web
-    
+    // Handle video play
+    const handlePlayVideo = () => {
+        if (!hasVideoUri()) {
+            alert("Video streaming not available for this movie!");
+            return;
+        }
+        setShowVideoPlayer(true);
+    };
+
+    // Handle video player close
+    const handleCloseVideoPlayer = () => {
+        setShowVideoPlayer(false);
+        setIsFullscreen(false);
+    };
+
+    // Handle fullscreen toggle
+    const handleFullscreenToggle = (fullscreen: boolean) => {
+        setIsFullscreen(fullscreen);
+    };
 
     // Alternative simpler download method (direct link)
     const handleDownload = async () => {
-        if (!hasDownloadLink()) {
+        if (!hasVideoUri()) {
             alert("Movie coming soon!");
             return;
         }
@@ -120,9 +138,6 @@ export default function MovieDetails() {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-
-            // Method 2: Show a download prompt
-            // downloadFile(); // Use this for progress tracking
 
         } catch (error) {
             console.error('Download error:', error);
@@ -164,9 +179,7 @@ export default function MovieDetails() {
         navigate(-1);
     }
 
-    
-
-    const movieHasDownload = hasDownloadLink();
+    const movieHasVideo = hasVideoUri();
 
     return (
         <div className={`container ${isTablet ? 'tablet-layout' : 'mobile-layout'}`}>
@@ -174,6 +187,30 @@ export default function MovieDetails() {
                 <button onClick={goBack} className="back-button">
                     <ArrowLeft size={30} />
                 </button>
+            )}
+
+            {/* Video Player Modal/Overlay */}
+            {showVideoPlayer && (
+                <div className={`video-player-overlay ${isFullscreen ? 'fullscreen' : ''}`}>
+                    <div className="video-player-header">
+                        <button onClick={handleCloseVideoPlayer} className="close-video-button">
+                            <X size={24} />
+                        </button>
+                        {!isFullscreen && (
+                            <h3 className="video-title">{movie.title}</h3>
+                        )}
+                    </div>
+                    <div className="video-player-container">
+                        <VideoPlayer
+                            videoUri={movie.downloadLink} // Use downloadLink as videoUri
+                            movieID={movie._id}
+                            contentType="movie"
+                            onFullscreenToggle={handleFullscreenToggle}
+                            autoPlay={true}
+                            muted={false}
+                        />
+                    </div>
+                </div>
             )}
 
             <div className="content-wrapper">
@@ -217,16 +254,25 @@ export default function MovieDetails() {
 
                         {/* Action Buttons */}
                         <div className="button-container">
-
+                            <button
+                                className={`play-button ${!movieHasVideo ? 'disabled' : ''}`}
+                                onClick={handlePlayVideo}
+                                disabled={!movieHasVideo}
+                            >
+                                <Play size={20} />
+                                <span className="button-text">
+                                    {!movieHasVideo ? 'Stream Unavailable' : 'Play Now'}
+                                </span>
+                            </button>
 
                             <button
-                                className={`download-button ${(!movieHasDownload || isDownloading) ? 'disabled' : ''}`}
+                                className={`download-button ${(!movieHasVideo || isDownloading) ? 'disabled' : ''}`}
                                 onClick={handleDownload}
-                                disabled={!movieHasDownload || isDownloading}
+                                disabled={!movieHasVideo || isDownloading}
                             >
                                 <Download size={20} />
                                 <span className="button-text">
-                                    {!movieHasDownload ? 'Coming Soon' :
+                                    {!movieHasVideo ? 'Coming Soon' :
                                         isDownloading ? 'Downloading...' : 'Download'}
                                 </span>
                             </button>

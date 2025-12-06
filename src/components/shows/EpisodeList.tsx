@@ -21,10 +21,12 @@ interface EpisodeItemProps {
   isDownloading: (id: string) => boolean;
 }
 
+// Update EpisodeListProps to include onPlayEpisode
 interface EpisodeListProps {
   episodesList: Episode[];
   onDownloadEpisode: (episode: Episode) => void;
   isDownloading: (id: string) => boolean;
+  onPlayEpisode?: (episodeID: string, episodeLink: string, episodeName: string) => void; // Add this
 }
 
 const EpisodeItem: React.FC<EpisodeItemProps> = ({ 
@@ -35,10 +37,6 @@ const EpisodeItem: React.FC<EpisodeItemProps> = ({
 }) => {
   const hasDownloadLink = episode.downloadLink && episode.downloadLink !== '';
   
-  // Debug: log the poster URL
-  console.log('Episode poster URL:', episode.poster);
-  console.log('Episode data:', episode);
-
   return (
     <div className="episode-container">
       <div className="episode-row">
@@ -46,13 +44,6 @@ const EpisodeItem: React.FC<EpisodeItemProps> = ({
           className={`episode-poster-container ${!hasDownloadLink ? 'coming-soon' : ''}`}
           onClick={() => hasDownloadLink ? onPlayEpisode(episode._id, episode.downloadLink, episode.name) : undefined}
         >
-          {/* <img 
-            src={episode.poster} 
-            alt={episode.name}
-            className="episode-poster" 
-            
-           
-          /> */}
           <div className="play-button-overlay">
             {hasDownloadLink ? (
               <div className="play-button">▶</div>
@@ -97,20 +88,19 @@ const EpisodeItem: React.FC<EpisodeItemProps> = ({
 const EpisodeList: React.FC<EpisodeListProps> = ({ 
   episodesList, 
   onDownloadEpisode, 
-  isDownloading 
+  isDownloading,
+  onPlayEpisode // Add this
 }) => {
-  const playEpisode = async (episodeID: string, episodeLink: string, episodeName: string) => {
+  // Use the provided onPlayEpisode or fallback to default
+  const handlePlayEpisode = onPlayEpisode || ((episodeID: string, episodeLink: string, episodeName: string) => {
     try {
       if (!episodeLink || episodeLink === '') {
         alert("Episode not available");
         return;
       }
       
-      // For web, we can navigate to a video player page
       console.log('Playing episode:', { episodeID, episodeLink, episodeName });
       
-      // You can implement actual video playback here
-      // For now, we'll just open the video in a new tab if it's a direct video link
       if (episodeLink.startsWith('http')) {
         window.open(episodeLink, '_blank');
       } else {
@@ -121,10 +111,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
       console.error("Error playing episode:", error);
       alert("Error playing episode");
     }
-  };
-
-  // Debug: log all episodes
-  console.log('All episodes:', episodesList);
+  });
 
   if (!episodesList || episodesList.length === 0) {
     return (
@@ -141,7 +128,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
         <EpisodeItem 
           key={episode._id}
           episode={episode} 
-          onPlayEpisode={playEpisode} 
+          onPlayEpisode={handlePlayEpisode} 
           onDownloadEpisode={onDownloadEpisode}
           isDownloading={isDownloading}
         />

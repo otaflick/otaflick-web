@@ -10,6 +10,179 @@
     margin: 0 auto;
     padding: 20px;
   }
+
+  /* Add to MovieDetails.css, ShowDetails.css, and AnimeDetails.css */
+
+/* Video Player Overlay Styles */
+.video-player-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-player-overlay.fullscreen {
+  background: #000;
+}
+
+.video-player-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10000;
+}
+
+.close-video-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  margin-right: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.close-video-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.video-title {
+  color: white;
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 500;
+  flex: 1;
+}
+
+.video-player-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Episode List Styles */
+.episode-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.episode-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.episode-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.episode-number {
+  background: #00C2FF;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.episode-details {
+  flex: 1;
+}
+
+.episode-title {
+  color: white;
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+}
+
+.episode-runtime {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.episode-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.play-episode-button, .play-episode-btn {
+  background: #00C2FF;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.play-episode-btn {
+  border-radius: 20px;
+  padding: 8px 16px;
+  width: auto;
+  gap: 8px;
+}
+
+.play-episode-button:hover, .play-episode-btn:hover {
+  background: #0099cc;
+}
+
+/* Play Button Styles */
+.play-button {
+  background: blue;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  color: rgb(39, 8, 212);
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.play-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.play-button.disabled {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
   
   /* Loading Styles */
   .loading-container {
