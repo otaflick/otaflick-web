@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Check, X, Play } from 'lucide-react'; // ADD Play
-import EpisodeList from '../components/anime/EpisodeList';
 import VideoPlayer from '../components/player/VideoPlayer'; // ADD THIS
 import '../css/AnimeDetails.css';
 

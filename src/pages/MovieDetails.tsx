@@ -203,7 +203,6 @@ export default function MovieDetails() {
                     <div className="video-player-container">
                         <VideoPlayer
                             videoUri={movie.downloadLink} // Use downloadLink as videoUri
-                            movieID={movie._id}
                             contentType="movie"
                             onFullscreenToggle={handleFullscreenToggle}
                             autoPlay={true}
