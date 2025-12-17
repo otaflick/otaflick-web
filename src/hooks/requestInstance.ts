@@ -694,6 +694,113 @@ export const removeWatchedMovie = async (movieID: string) => {
   }
 };
 
+export const getMovieById = async (movieId: string): Promise<Movie | undefined> => {
+  try {
+    // Get all movies first
+    const allMovies = await moviesListAPI();
+    
+    if (allMovies.movies && Array.isArray(allMovies.movies)) {
+      // Find the movie by ID
+      const movie = allMovies.movies.find(m => m._id === movieId);
+      
+      if (movie) {
+        return movie;
+      }
+    }
+    
+    throw new Error("Movie not found");
+  } catch (error) {
+    console.error("Error finding movie:", error);
+    throw error;
+  }
+};
+
+
+export const getShowById = async (showId: string): Promise<Show | null> => {
+  try {
+    // Get all shows first
+    const allShows = await getAllShows();
+    
+    
+    if (allShows?.shows && Array.isArray(allShows.shows)) {
+      // Find the show by ID
+      const show = allShows.shows.find(s => s._id === showId);
+      
+      if (show) {
+        console.log("Found show:", show.title || show.name);
+        return show;
+      } else {
+      }
+    } else {
+    }
+    
+    // Try alternative approach if above fails
+    
+    // Option 1: Try getRecentAddedShows
+    const recentShows = await getRecentAddedShows();
+    if (recentShows?.shows) {
+      const show = recentShows.shows.find(s => s._id === showId);
+      if (show) return show;
+    }
+    
+    // Option 2: Try getLatestReleasedShows
+    const latestShows = await getLatestReleasedShows();
+    if (latestShows?.shows) {
+      const show = latestShows.shows.find(s => s._id === showId);
+      if (show) return show;
+    }
+    
+    console.error("Show not found in any show list");
+    return null;
+    
+  } catch (error) {
+    console.error("Error finding show:", error);
+    return null;
+  }
+};
+
+export const getAnimeById = async (animeId: string): Promise<Anime | null> => {
+  try {
+    // Get all anime first
+    const allAnime = await getAllAnime();
+    
+    
+    if (allAnime?.anime && Array.isArray(allAnime.anime)) {
+      // Find the anime by ID
+      const anime = allAnime.anime.find(a => a._id === animeId);
+      
+      if (anime) {
+        console.log("Found anime:", anime.name);
+        return anime;
+      } else {
+      }
+    } else {
+    }
+    
+    
+    // Option 1: Try getRecentAddedAnime
+    const recentAnime = await getRecentAddedAnime();
+    if (recentAnime?.anime) {
+      const anime = recentAnime.anime.find(a => a._id === animeId);
+      if (anime) return anime;
+    }
+    
+    // Option 2: Try getLatestReleasedAnime
+    const latestAnime = await getLatestReleasedAnime();
+    if (latestAnime?.anime) {
+      const anime = latestAnime.anime.find(a => a._id === animeId);
+      if (anime) return anime;
+    }
+    
+    console.error("Anime not found in any anime list");
+    return null;
+    
+  } catch (error) {
+    console.error("Error finding anime:", error);
+    return null;
+  }
+};
+
 
 export const similarMoviesAPI = async (movieID: string): Promise<Movie[] | undefined> => {
   const options = {

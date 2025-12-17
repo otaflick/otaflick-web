@@ -104,10 +104,10 @@ export default function ShowsScreen() {
   }, []);
 
   const handleShowDetails = (show: Show) => {
-    navigate('/show-details', { 
-      state: { show } 
+    navigate(`/show/${show._id}`, { 
+        state: { show } 
     });
-  };
+};
 
   const handleSearchPress = () => {
     navigate('/show-search');

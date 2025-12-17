@@ -30,8 +30,9 @@ const SearchAnimeList: React.FC<SearchAnimeListProps> = ({ data, isTablet = fals
   };
 
   const handleAnimePress = (anime: Anime) => {
-    navigate('/anime-details', { state: { anime } });
-  };
+    navigate(`/anime/${anime._id}`, { 
+      state: { anime } 
+    });  };
 
   const renderItem = (item: Anime) => (
     <div className="anime-item" onClick={() => handleAnimePress(item)}>

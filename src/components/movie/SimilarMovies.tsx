@@ -30,7 +30,7 @@ const SimilarMovies = ({ similarMoviesList }: SimilarMoviesProps) => {
     };
 
     const handleSimilarMovies = (selectedSimilarMovie: Movie) => {
-        navigate('/movie-details', { 
+        navigate(`/movie/${selectedSimilarMovie._id}`, { 
             state: { movie: selectedSimilarMovie } 
         });
     }

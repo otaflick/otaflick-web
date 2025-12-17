@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom'; // ADDED: useLocation is needed
 import VideoPlayer from '../components/player/VideoPlayer';
-import EpisodeList from '../components/shows/EpisodeList'; // Keep this import
+import EpisodeList from '../components/shows/EpisodeList';
 import '../css/ShowDetails.css';
 import { X } from 'lucide-react';
+import { getShowById } from '../hooks/requestInstance';
 
 // Define types
 export interface Episode {
@@ -38,11 +39,12 @@ export interface Show {
 }
 
 export default function ShowDetails() {
-  const location = useLocation();
+  const location = useLocation(); // ADDED: Now we can use location
   const navigate = useNavigate();
+  const { id } = useParams();
   
-  const show = location.state?.show as Show | null;
-
+  // ADDED: State for show data
+  const [show, setShow] = useState<Show | null>(null);
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState<number>(0);
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -67,11 +69,46 @@ export default function ShowDetails() {
     setShowVideoPlayer(true);
   };
 
+  // FETCH SHOW DATA USING ID FROM URL
+  useEffect(() => {
+    const fetchShowData = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Priority 1: Check if show data came from navigation state
+        if (location.state?.show) {
+          setShow(location.state.show);
+          console.log("Using show data from navigation state");
+        }
+        // Priority 2: Fetch show by ID from URL (for direct links/refresh)
+        else if (id) {
+          console.log(`Fetching show by ID from API: ${id}`);
+          const showData = await getShowById(id);
+          
+          if (showData) {
+            setShow(showData);
+          } else {
+            console.error("Show not found");
+          }
+        } else {
+          console.error("No show ID found in URL");
+          return;
+        }
+      } catch (error) {
+        console.error("Error fetching show data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchShowData();
+  }, [id, location.state]);
+
   // Create a wrapper function for EpisodeList's onPlayEpisode
   const handleEpisodeListPlay = (episodeID: string, episodeLink: string, episodeName: string) => {
     // Find the episode from the episodes list
-    const episodes = selectedSeason?.episodes || [];
-    const episode = episodes.find(ep => ep._id === episodeID);
+    const episodes = show?.seasons?.[selectedSeasonIndex]?.episodes || [];
+    const episode = episodes.find((ep: Episode) => ep._id === episodeID); // ADDED: Type annotation
     
     if (episode) {
       handlePlayEpisode(episode);
@@ -95,6 +132,7 @@ export default function ShowDetails() {
     setIsFullscreen(fullscreen);
   };
 
+  // Optional: Additional initialization if needed
   useEffect(() => {
     if (!show || hasFetched.current) {
       setIsLoading(false);

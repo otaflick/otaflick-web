@@ -31,8 +31,11 @@ const SearchShowList: React.FC<SearchShowListProps> = ({ data }) => {
   };
 
   const handleShowPress = (show: Show) => {
-    navigate('/show-details', { state: { show } });
-  };
+    navigate(`/show/${show._id}`, { 
+      state: { show } 
+  });  };
+
+
 
   if (!data || data.length === 0) {
     return (

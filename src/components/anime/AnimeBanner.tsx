@@ -30,13 +30,15 @@ const AnimeBanner: React.FC<AnimeBannerProps> = ({ animeList,  isTablet }) => {
   
 
   const handleBannerClick = (anime: Anime) => {
-    navigate('/anime-details', { state: { anime } });
-  };
+navigate(`/anime/${anime._id}`, { 
+      state: { anime } 
+    });  };
 
   const posterInfoButton = (anime: Anime, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate('/anime-details', { state: { anime } });
-  };
+navigate(`/anime/${anime._id}`, { 
+      state: { anime } 
+    });  };
 
   
 

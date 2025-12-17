@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom'; // ADDED useParams
 import { ArrowLeft, Download, Play, Tv, Speaker, Subtitles, Star, X } from 'lucide-react';
 import SimilarMovies from '../components/movie/SimilarMovies';
-import { similarMoviesAPI } from '../hooks/requestInstance';
+import { similarMoviesAPI, getMovieById } from '../hooks/requestInstance'; // ADDED getMovieById
 import '../css/MovieDetails.css';
 import VideoPlayer from '../components/player/VideoPlayer';
 
@@ -23,10 +23,10 @@ interface Movie {
 export default function MovieDetails() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { id } = useParams(); // ADDED: Get movie ID from URL parameter
 
-    // Get movie from location state
-    const movie = useMemo(() => location.state?.movie || null, [location.state]);
-
+    // State for movie data
+    const [movie, setMovie] = useState<Movie | null>(null);
     const [similarMoviesList, setSimilarMoviesList] = useState<Movie[]>([]);
     const [isTablet, setIsTablet] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -51,14 +51,52 @@ export default function MovieDetails() {
         };
     }, []);
 
+    // FETCH MOVIE DATA USING ID FROM URL
     useEffect(() => {
-        if (!movie || hasFetched.current) {
+        const fetchMovieData = async () => {
+            setIsLoading(true);
+
+            try {
+                // Priority 1: Check if movie data came from navigation state
+                if (location.state?.movie) {
+                    setMovie(location.state.movie);
+                    console.log("Using movie data from navigation state");
+                }
+                // Priority 2: Fetch movie by ID from URL (for direct links/refresh)
+                else if (id) {
+                    console.log(`Fetching movie by ID from API: ${id}`);
+                    const movieData = await getMovieById(id);
+
+                    // Handle the undefined case
+                    if (movieData) {
+                        setMovie(movieData);
+                    } else {
+                        console.error("Movie not found");
+                        // Keep movie as null to show error
+                    }
+                } else {
+                    console.error("No movie ID found in URL");
+                    return;
+                }
+            } catch (error) {
+                console.error("Error fetching movie data:", error);
+                // Don't set movie - let it stay null
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMovieData();
+    }, [id, location.state]);
+
+    // FETCH SIMILAR MOVIES (only after we have movie data)
+    useEffect(() => {
+        if (!movie || hasFetched.current || !movie._id) {
             return;
         }
 
-        const initializeData = async () => {
+        const fetchSimilarMovies = async () => {
             hasFetched.current = true;
-            setIsLoading(true);
 
             try {
                 const similarMovies = await similarMoviesAPI(movie._id);
@@ -70,8 +108,8 @@ export default function MovieDetails() {
             }
         };
 
-        initializeData();
-    }, [movie]);
+        fetchSimilarMovies();
+    }, [movie]); // Depend on movie state
 
     // Check if movie has download link (which is also video uri)
     const hasVideoUri = (): boolean => {
@@ -122,7 +160,7 @@ export default function MovieDetails() {
 
     // Alternative simpler download method (direct link)
     const handleDownload = async () => {
-        if (!hasVideoUri()) {
+        if (!movie || !hasVideoUri()) {
             alert("Movie coming soon!");
             return;
         }
@@ -155,6 +193,11 @@ export default function MovieDetails() {
         </div>
     );
 
+    // Show loading screen while data is being processed
+    if (isLoading) {
+        return <LoadingScreen />;
+    }
+
     // Add a check for missing movie data
     if (!movie) {
         return (
@@ -168,11 +211,6 @@ export default function MovieDetails() {
                 </div>
             </div>
         );
-    }
-
-    // Show loading screen while data is being processed
-    if (isLoading) {
-        return <LoadingScreen />;
     }
 
     const goBack = () => {
@@ -237,9 +275,7 @@ export default function MovieDetails() {
                                 <Tv size={20} />
                                 <span className="separator">|</span>
                                 <Star size={16} />
-                                <span className="sub-detail">
-                                    {movie.ratings || 'N/A'}
-                                </span>
+
                             </div>
 
                             <div className="detail-group">

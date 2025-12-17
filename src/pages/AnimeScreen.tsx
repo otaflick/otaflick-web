@@ -93,10 +93,13 @@ export default function AnimeScreen() {
  
   
   const handleAnimeDetails = (anime: Anime) => {
-    navigate('/anime-details', { 
+    navigate(`/anime/${anime._id}`, { 
       state: { anime } 
     });
   };
+
+  
+  
 
   const handleSearchPress = () => {
     navigate('/anime-search');

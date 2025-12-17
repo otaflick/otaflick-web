@@ -47,8 +47,8 @@ const SearchMovieList: React.FC<SearchMovieListProps> = ({
   };
 
   const handleMoviePress = (movie: Movie) => {
-    navigate('/movie-details', { 
-      state: { movie } 
+    navigate(`/movie/${movie._id}`, { state: { movie } 
+
     });
   };
 

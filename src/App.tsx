@@ -19,13 +19,13 @@ function App() {
         <Route element={<TopbarLayout />}>
         <Route path="/" element={<Navigate to="/movies" replace />} />
           <Route path="/movies" element={<HomeScreen />} />
-          <Route path="/movie-details" element={<MovieDetails />} />
+          <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/search" element={<MoviesSearchScreen />} />
           <Route path="/shows" element={<ShowsScreen />} />
-          <Route path="/show-details" element={<ShowDetails />} /> 
+          <Route path="/show/:id" element={<ShowDetails />} /> 
           <Route path="/show-search" element={<ShowsSearchScreen />} />
           <Route path="/anime" element={<AnimeScreen />} /> 
-          <Route path="/anime-details" element={<AnimeDetails />} />
+          <Route path="/anime/:id" element={<AnimeDetails />} />
           <Route path="/anime-search" element={<AnimeSearchScreen />} /> 
 
 

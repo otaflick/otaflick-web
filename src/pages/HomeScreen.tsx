@@ -85,7 +85,7 @@ export default function HomeScreen() {
    
 
     const handleBanner = (movie: Movie) => {
-        navigate('/movie-details', { state: { movie } });
+    navigate(`/movie/${movie._id}`, { state: { movie } }); // Fixed
     };
 
     const posterPlayButton = async (movieID: string, movieLink: string, movieTitle: string) => {
@@ -115,11 +115,11 @@ export default function HomeScreen() {
     };
 
     const posterInfoButton = (movie: Movie) => {
-        navigate('/movie-details', { state: { movie } });
+    navigate(`/movie/${movie._id}`, { state: { movie } }); // Fixed
     };
 
     const handleMovieDetails = (movie: Movie) => {
-        navigate('/movie-details', { state: { movie } });
+    navigate(`/movie/${movie._id}`, { state: { movie } }); // Fixed
     };
 
     const handleSearchPress = () => {
