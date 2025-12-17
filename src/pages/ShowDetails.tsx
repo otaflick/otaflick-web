@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom'; // ADDED: useLocation is needed
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import VideoPlayer from '../components/player/VideoPlayer';
 import EpisodeList from '../components/shows/EpisodeList';
 import '../css/ShowDetails.css';
 import { X } from 'lucide-react';
 import { getShowById } from '../hooks/requestInstance';
 
-// Define types
-export interface Episode {
+// Define local types with different names to avoid conflict
+export interface LocalEpisode {
   _id: string;
   name: string;
   downloadLink: string;
@@ -18,14 +18,14 @@ export interface Episode {
   [key: string]: any;
 }
 
-export interface Season {
+export interface LocalSeason {
   _id: string;
   seasonNumber: number;
-  episodes: Episode[];
+  episodes: LocalEpisode[];
   [key: string]: any;
 }
 
-export interface Show {
+export interface LocalShow {
   _id: string;
   name: string;
   backdropPath: string;
@@ -34,24 +34,24 @@ export interface Show {
   ratings: number;
   overview: string;
   genres: string[];
-  seasons: Season[];
+  seasons: LocalSeason[];
   [key: string]: any;
 }
 
 export default function ShowDetails() {
-  const location = useLocation(); // ADDED: Now we can use location
+  const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
   
-  // ADDED: State for show data
-  const [show, setShow] = useState<Show | null>(null);
+  // Use LocalShow type instead of Show
+  const [show, setShow] = useState<LocalShow | null>(null);
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState<number>(0);
   const [isModalVisible, setModalVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [downloadingEpisodes, setDownloadingEpisodes] = useState<Set<string>>(new Set());
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
+  const [selectedEpisode, setSelectedEpisode] = useState<LocalEpisode | null>(null);
 
   const hasFetched = useRef(false);
 
@@ -59,8 +59,7 @@ export default function ShowDetails() {
     navigate(-1);
   };
 
-  // Update this function to work with EpisodeList
-  const handlePlayEpisode = (episode: Episode) => {
+  const handlePlayEpisode = (episode: LocalEpisode) => {
     if (!episode.downloadLink || episode.downloadLink === '') {
       alert("Video streaming not available for this episode!");
       return;
@@ -77,7 +76,9 @@ export default function ShowDetails() {
       try {
         // Priority 1: Check if show data came from navigation state
         if (location.state?.show) {
-          setShow(location.state.show);
+          // Transform the show data to LocalShow format
+          const showData = location.state.show;
+          setShow(transformToLocalShow(showData));
           console.log("Using show data from navigation state");
         }
         // Priority 2: Fetch show by ID from URL (for direct links/refresh)
@@ -86,7 +87,7 @@ export default function ShowDetails() {
           const showData = await getShowById(id);
           
           if (showData) {
-            setShow(showData);
+            setShow(transformToLocalShow(showData));
           } else {
             console.error("Show not found");
           }
@@ -104,16 +105,41 @@ export default function ShowDetails() {
     fetchShowData();
   }, [id, location.state]);
 
+  // Helper function to transform API show to LocalShow
+  const transformToLocalShow = (apiShow: any): LocalShow => {
+    return {
+      _id: apiShow._id,
+      name: apiShow.title || apiShow.name || 'Unknown Show',
+      backdropPath: apiShow.backdropPath || apiShow.posterPath || '',
+      posterPath: apiShow.posterPath || '',
+      releaseDate: apiShow.releaseDate || '',
+      ratings: apiShow.ratings || 0,
+      overview: apiShow.overview || '',
+      genres: apiShow.genres || [],
+      seasons: (apiShow.seasons || []).map((apiSeason: any): LocalSeason => ({
+        _id: apiSeason._id,
+        seasonNumber: apiSeason.seasonNumber || 1,
+        episodes: (apiSeason.episodes || []).map((apiEpisode: any): LocalEpisode => ({
+          _id: apiEpisode._id,
+          name: apiEpisode.title || apiEpisode.name || 'Episode',
+          downloadLink: apiEpisode.downloadLink || '',
+          poster: apiEpisode.poster,
+          episode_number: apiEpisode.episodeNumber || apiEpisode.episode_number,
+          runtime: apiEpisode.runtime,
+          overview: apiEpisode.overview
+        }))
+      }))
+    };
+  };
+
   // Create a wrapper function for EpisodeList's onPlayEpisode
   const handleEpisodeListPlay = (episodeID: string, episodeLink: string, episodeName: string) => {
-    // Find the episode from the episodes list
     const episodes = show?.seasons?.[selectedSeasonIndex]?.episodes || [];
-    const episode = episodes.find((ep: Episode) => ep._id === episodeID); // ADDED: Type annotation
+    const episode = episodes.find((ep: LocalEpisode) => ep._id === episodeID);
     
     if (episode) {
       handlePlayEpisode(episode);
     } else {
-      // Fallback: create a temporary episode object
       handlePlayEpisode({
         _id: episodeID,
         name: episodeName,
@@ -148,7 +174,7 @@ export default function ShowDetails() {
     initializeData();
   }, [show]);
 
-  const handleDownloadEpisode = async (episode: Episode) => {
+  const handleDownloadEpisode = async (episode: LocalEpisode) => {
     if (!episode.downloadLink || episode.downloadLink === '') {
       alert('This episode is not available for download yet');
       return;
@@ -157,32 +183,25 @@ export default function ShowDetails() {
     setDownloadingEpisodes(prev => new Set(prev).add(episode._id));
   
     try {
-      // Create a download link
       const link = document.createElement('a');
       link.href = episode.downloadLink;
       
       link.download = `${show?.name || 'Episode'} - ${episode.name}.mp4`;
       
-      // Set target to _blank to open in new tab (better for large files)
       link.target = '_blank';
       
-      // Append to body
       document.body.appendChild(link);
       
-      // Trigger click
       link.click();
       
-      // Clean up
       document.body.removeChild(link);
       
-      // Optional: You can show a success message
       console.log(`Download initiated: ${episode.name}`);
       
     } catch (error) {
       console.error('Download error:', error);
       alert('Download failed. Please try again.');
     } finally {
-      // Reset downloading state after a delay
       setTimeout(() => {
         setDownloadingEpisodes(prev => {
           const newSet = new Set(prev);
@@ -275,7 +294,7 @@ export default function ShowDetails() {
               </div>
 
               <div className="modal-list-content">
-                {seasons.map((season: Season, index: number) => (
+                {seasons.map((season: LocalSeason, index: number) => (
                   <div
                     key={index}
                     className={`modal-item ${selectedSeasonIndex === index ? 'selected' : ''}`}
@@ -352,7 +371,7 @@ export default function ShowDetails() {
             episodesList={episodes}
             onDownloadEpisode={handleDownloadEpisode}
             isDownloading={isDownloading}
-            onPlayEpisode={handleEpisodeListPlay} // Pass the play handler
+            onPlayEpisode={handleEpisodeListPlay}
           />
         )}
       </div>
