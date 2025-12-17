@@ -56,9 +56,7 @@ const EpisodeItem: React.FC<EpisodeItemProps> = ({
           <h3 className="episode-number">
             {`${episode.episode_number || 'N/A'}. ${episode.name}`}
           </h3>
-          <p className="episode-runtime">
-            {episode.runtime ? `${episode.runtime} min` : 'Runtime not available'}
-          </p>
+          
           
           {/* Download Button for each episode */}
           <button
